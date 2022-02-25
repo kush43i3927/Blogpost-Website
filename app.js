@@ -2,8 +2,20 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const lo = require('lodash');
+const mongoose = require('mongoose');
 
+// connecting to mongo database
+mongoose.connect('mongodb://localhost:27017/blogDB');
 const postContent = [];
+
+// creating a schema
+const postSchema = mongoose.Schema({
+   title: String,
+   body: String,
+});
+
+// creating a new model
+const Post = new mongoose.model('Post', postSchema);
 
 const homeStartingContent =
    'Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.';
@@ -21,9 +33,11 @@ app.use(express.static('public'));
 
 app.get('/', (req, res) => {
    // console.log(postContent)
-   res.render('home', {
-      homeStartingContent: homeStartingContent,
-      postContent: postContent,
+   Post.find({}, (err, posts) => {
+      res.render('home', {
+         homeStartingContent: homeStartingContent,
+         postContent: posts,
+      });
    });
 });
 
@@ -43,22 +57,27 @@ app.post('/compose', (req, res) => {
       title: req.body.title,
       body: req.body.body,
    };
+
+   // creating a new post element
+   const post = new Post({
+      title: req.body.title,
+      body: req.body.body,
+   });
+   post.save(); // saving to database
+
    postContent.push(content);
+
    res.redirect('/');
 });
 
-app.get('/posts/:test', (req, res) => {
-   const testTitle = lo.lowerCase(req.params.test);
+app.get('/posts/:id', (req, res) => {
+   const requestedID = req.params.id;
 
-   postContent.forEach((post) => {
-      const titles = lo.lowerCase(post.title);
-
-      if (testTitle === titles) {
-         res.render('post', {
-            postTitle: post.title,
-            postBody: post.body,
-         });
-      }
+   Post.findOne({_id: requestedID}, (err, post) => {
+      res.render('post', {
+         postTitle: post.title,
+         postBody: post.body,
+      });
    });
 });
 

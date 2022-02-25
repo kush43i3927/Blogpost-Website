@@ -7,6 +7,6 @@
 <h1><%= post.title %></h1>
 <p>
    <%= post.body.substring(0, 30).concat("...") %>
-   <a href="posts/<%= post.title %>"> Read more </a>
+   <a href="posts/<%= post._id %>"> Read More </a>
 </p>
 <% }) %> <%- include('partials/footer') -%>
