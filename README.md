@@ -1,5 +1,5 @@
 # Web-Development
-A sample Blog Post website without database.
+A sample Blog Post website with database.
 
 
 # Before using 
